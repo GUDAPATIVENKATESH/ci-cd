@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+    triggers { pollSCM('* * * * *') }
+    stages { 
+        stage('clone') {
+            steps {
+                git url: 'https://github.com/GUDAPATIVENKATESH/spring-petclinic.git',
+                branch: 'master'
+            }
+        }
+        stage('build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+    }
+}
