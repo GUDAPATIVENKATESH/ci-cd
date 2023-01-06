@@ -8,6 +8,13 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/GUDAPATIVENKATESH/spring-petclinic.git'
             }
         }
+        stage('sonarQubeAnalysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh " mvn clean package sonar:sonar"
+                }
+            }
+        }
         stage ('Artifactory configuration') {
             steps {
                rtMavenDeployer (
