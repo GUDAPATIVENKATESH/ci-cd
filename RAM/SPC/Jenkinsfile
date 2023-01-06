@@ -1,16 +1,37 @@
 pipeline {
-    agent any
+    agent { label 'JNKS' }
     triggers { pollSCM('* * * * *') }
     stages { 
         stage('clone') {
             steps {
-                git url: 'https://github.com/GUDAPATIVENKATESH/spring-petclinic.git',
-                branch: 'master'
+                
+                git branch: 'main', url: 'https://github.com/GUDAPATIVENKATESH/spring-petclinic.git'
             }
         }
-        stage('build') {
+        stage ('Artifactory configuration') {
             steps {
-                sh 'mvn clean package'
+               rtMavenDeployer (
+                    id: "MAVEN_HOME",
+                    serverId: "JFROG_TASK",
+                    releaseRepo: "https://cicdrj.jfrog.io/artifactory/libs-release",
+                    snapshotRepo: "https://cicdrj.jfrog.io/artifactory/libs-snapshot"
+                )
+            }
+        }
+        stage ('Exec Maven') {
+            steps {
+                rtMavenRun (
+                    tool: "MAVEN_HOME", // Tool name from Jenkins configuration
+                    pom: 'pom.xml',
+                    goals: 'clean install',
+                )
+            }
+        }
+        stage ('Publish build info') {
+            steps {
+                rtPublishBuildInfo (
+                    serverId: "JFROG_TASK"
+                )
             }
         }
     }
