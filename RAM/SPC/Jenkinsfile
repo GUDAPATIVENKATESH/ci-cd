@@ -10,7 +10,7 @@ pipeline {
         }
         stage('sonarQubeAnalysis') {
             steps {
-                withSonarQubeEnv('SonarQube') {
+                withSonarQubeEnv('SONAR') {
                     sh " mvn clean package sonar:sonar"
                 }
             }
@@ -40,6 +40,23 @@ pipeline {
                     serverId: "JFROG_TASK"
                 )
             }
+        }
+    }
+    post { 
+        always { 
+            mail subject: "Build started for Jenkins JOB $env.JOB_NAME", 
+                  body: "Build started for Jenkins JOB $env.JOB_NAME \n Click Here: $env.JOB_URL", 
+                  to: 'qtdevops@gmail.com'
+        }
+        failure {
+            mail subject: "Build faild for Jenkins JOB $env.JOB_NAME", 
+                  body: "Build faild for Jenkins JOB $env.JOB_NAME \n Click Here: $env.JOB_URL", 
+                  to: 'qtdevops@gmail.com'
+        }
+        finally {
+            mail subject: "Build Completed for Jenkins JOB $env.JOB_NAME", 
+                  body: "Build Completed for Jenkins JOB $env.JOB_NAME \n Click Here: $env.JOB_URL", 
+                  to: 'qtdevops@gmail.com'
         }
     }
 }
